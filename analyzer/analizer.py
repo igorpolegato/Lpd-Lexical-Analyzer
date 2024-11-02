@@ -31,7 +31,7 @@ class Token:
     SREADD = TokenType("sreadd")
     SVAR = TokenType("svar")
     SINT = TokenType("sint")
-    FLOAT = TokenType("sfloat")
+    SFLOAT = TokenType("sfloat")
     SCHAR = TokenType("schar")
     SIDENTIFICADOR = TokenType("sidentificador")
     SNUMERO = TokenType("snúmero")
@@ -90,7 +90,7 @@ class Analizer:
             Token("readd", Token.SREADD),
             Token("var", Token.SVAR),
             Token("int", Token.SINT),
-            Token("float", Token.SINT),
+            Token("float", Token.SFLOAT),
             Token("char", Token.SCHAR),
             Token(r"^[a-z]+[\d\w]*$", Token.SIDENTIFICADOR, use_regex=True),
             Token(r"^[0-9.]+$", Token.SNUMERO, use_regex=True),
