@@ -1,17 +1,21 @@
 from typing import Union
 import re
 
+# Define um tipo de token, que representa uma categoria de lexemas
 class TokenType:
     def __init__(self, name: str) -> None:
-        self.name = name
+        self.name = name # Armazena o nome do tipo do token
+
 
     def __str__(self) -> str:
-        return self.name
+        return self.name # Retorna o nome do token quando convertido em string
 
     def __repr__(self) -> str:
-        return self.name
+        return self.name # Retorna o nome do token ao imprimir ou representar o objeto
 
+# Define uma classe para representar tokens específicos
 class Token:
+    # Define constantes para cada tipo de token, com seus respectivos nomes
     SPROGRAM = TokenType("sprogram")
     SBEGIN = TokenType("sbegin")
     SEND = TokenType("send")
@@ -58,18 +62,22 @@ class Token:
 
 
     def __init__(self, lexeme: Union[str, int], ttype: TokenType, use_regex=False) -> None:
-        self.lexeme = lexeme
-        self.type = ttype
-        self.use_regex = use_regex
+        self.lexeme = lexeme # Armazena o valor ou padrão do token
+        self.type = ttype # Armazena o tipo do token (um objeto TokenType)
+        self.use_regex = use_regex # Define se o token deve ser identificado por regex
 
     def is_(self, tk: Union[str, int]):
+        # Verifica se o lexema do token corresponde ao valor fornecido (tk)
         if self.use_regex:
+            # Se o token usa regex, verifica correspondência usando re.match
             return re.match(self.lexeme, tk, re.I) is not None
-
+        # Se não usa regex, verifica se o lexema é exatamente igual ao valor fornecido
         return self.lexeme == tk
-
+    
+# Define uma classe para o analisador léxico
 class Analizer:
     def __init__(self) -> None:
+        # Inicializa a lista de tokens, que mapeia cada lexema para seu tipo
         self.tokens = [
             Token("program", Token.SPROGRAM),
             Token("begin", Token.SBEGIN),
@@ -92,7 +100,9 @@ class Analizer:
             Token("int", Token.SINT),
             Token("float", Token.SFLOAT),
             Token("char", Token.SCHAR),
+            # Token para identificadores, usa regex para capturar padrões alfanuméricos
             Token(r"^[a-z]+[\d\w]*$", Token.SIDENTIFICADOR, use_regex=True),
+            # Token para números, usa regex para capturar dígitos e pontos decimais
             Token(r"^[0-9.]+$", Token.SNUMERO, use_regex=True),
             Token(".", Token.SPONTO),
             Token(";", Token.SPONTO_VIRGULA),
