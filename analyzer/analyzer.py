@@ -14,7 +14,7 @@ class TokenType:
 
 # Define uma classe para representar tokens específicos
 class Token:
-    # Define constantes para cada tipo de token com base nos requisitos e especificações do PDF
+    # Define constantes para cada tipo de token com base nos requisitos e especificações
     SPROGRAM = TokenType("sprogram")
     SBEGIN = TokenType("sbegin")
     SEND = TokenType("send")
@@ -27,7 +27,7 @@ class Token:
     SDO = TokenType("sdo")
     SREPEAT = TokenType("srepeat")
     SUNTIL = TokenType("suntil")
-    SATRIBUICAO = TokenType("satribuicao")
+    SATRIBUICAO = TokenType("satribuição")
     SWRITEC = TokenType("swritec")
     SWRITED = TokenType("swrited")
     SREADC = TokenType("sreadc")
@@ -37,12 +37,12 @@ class Token:
     SFLOAT = TokenType("sfloat")
     SCHAR = TokenType("schar")
     SIDENTIFICADOR = TokenType("sidentificador")
-    SNUMERO = TokenType("snumero")
+    SNUMERO = TokenType("snúmero")
     SPONTO = TokenType("sponto")
     SPONTO_VIRGULA = TokenType("sponto_virgula")
-    SVIRGULA = TokenType("svirgula")
-    SABRE_PARENTESES = TokenType("sabre_parenteses")
-    SFECHA_PARENTESES = TokenType("sfecha_parenteses")
+    SVIRGULA = TokenType("svírgula")
+    SABRE_PARENTESES = TokenType("sabre_parênteses")
+    SFECHA_PARENTESES = TokenType("sfecha_parênteses")
     SABRE_COLCHETE = TokenType("sabre_colchete")
     SFECHA_COLCHETE = TokenType("sfecha_colchete")
     SAND = TokenType("sand")
