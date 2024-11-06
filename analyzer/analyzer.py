@@ -5,7 +5,7 @@ import re
 class TokenType:
     """
     Representa o tipo de um token, armazenando seu nome.
-    
+
     Attributes:
         name (str): O nome que descreve o tipo do token.
     """
@@ -22,7 +22,7 @@ class TokenType:
 class Token:
     """
     Representa um token específico com seu lexema e tipo, incluindo o uso de regex quando necessário.
-    
+
     Attributes:
         lexeme (str|int): O valor ou padrão do token.
         type (TokenType): O tipo do token, um objeto TokenType.
@@ -144,7 +144,7 @@ class LexicalAnalyzer:
             Token(">", Token.SMAIOR),
             Token("<", Token.SMENOR),
             Token("==", Token.SIGUAL),
-            Token("!=", Token.SDIFERENTE),
+            Token("<>", Token.SDIFERENTE),
             Token(">=", Token.SMAIOR_IGUAL),
             Token("<=", Token.SMENOR_IGUAL),
             Token("+", Token.SMAIS),
@@ -184,7 +184,7 @@ class LexicalAnalyzer:
 
         for word in words:
             matched = False  # Flag para verificar se o token foi identificado
-            
+
             # Verifica se o token é um caractere entre aspas simples
             if re.match(r"^'[a-zA-Z0-9]'$", word):
                 tokens.append(Token(word, Token.SCHAR))  # Adiciona o token do tipo `SCHAR`
