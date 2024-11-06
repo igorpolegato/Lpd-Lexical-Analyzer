@@ -3,6 +3,12 @@ import re
 
 # Define um tipo de token, que representa uma categoria de lexemas
 class TokenType:
+    """
+    Representa o tipo de um token, armazenando seu nome.
+    
+    Attributes:
+        name (str): O nome que descreve o tipo do token.
+    """
     def __init__(self, name: str) -> None:
         self.name = name  # Armazena o nome do tipo do token
 
@@ -14,7 +20,15 @@ class TokenType:
 
 # Define uma classe para representar tokens específicos
 class Token:
-    # Define constantes para cada tipo de token com base nos requisitos e especificações
+    """
+    Representa um token específico com seu lexema e tipo, incluindo o uso de regex quando necessário.
+    
+    Attributes:
+        lexeme (str|int): O valor ou padrão do token.
+        type (TokenType): O tipo do token, um objeto TokenType.
+        use_regex (bool): Indica se o token será identificado por regex.
+    """
+    # Constantes que representam cada tipo de token, com base nos requisitos e especificações
     SPROGRAM = TokenType("sprogram")
     SBEGIN = TokenType("sbegin")
     SEND = TokenType("send")
@@ -58,6 +72,7 @@ class Token:
     SMENOS = TokenType("smenos")
     SVEZES = TokenType("svezes")
     SDIV = TokenType("sdiv")
+    SDIV_FLUTUANTE = TokenType("sdiv_flutuante")
 
     def __init__(self, lexeme: Union[str, int], ttype: TokenType, use_regex=False) -> None:
         self.lexeme = lexeme  # Armazena o valor ou padrão do token
@@ -65,7 +80,15 @@ class Token:
         self.use_regex = use_regex  # Define se o token deve ser identificado por regex
 
     def is_(self, tk: Union[str, int]):
-        # Verifica se o lexema do token corresponde ao valor fornecido (tk)
+        """
+        Verifica se o lexema do token corresponde ao valor fornecido (tk).
+
+        Args:
+            tk (str|int): O valor a ser comparado.
+
+        Returns:
+            bool: True se corresponder, False caso contrário.
+        """
         if self.use_regex:
             # Se o token usa regex, verifica correspondência usando re.match
             return re.match(self.lexeme, tk, re.I) is not None
@@ -74,8 +97,14 @@ class Token:
 
 # Define a classe do analisador léxico
 class LexicalAnalyzer:
+    """
+    Responsável por analisar o código fonte, removendo comentários e identificando tokens.
+
+    Attributes:
+        tokens (list): Lista de tokens mapeados a lexemas para correspondência durante a análise.
+    """
     def __init__(self) -> None:
-        # Inicializa a lista de tokens, que mapeia cada lexema para seu tipo correspondente
+        # Inicializa a lista de tokens com mapeamento de cada lexema para seu tipo correspondente
         self.tokens = [
             Token("program", Token.SPROGRAM),
             Token("begin", Token.SBEGIN),
@@ -98,10 +127,10 @@ class LexicalAnalyzer:
             Token("int", Token.SINT),
             Token("float", Token.SFLOAT),
             Token("char", Token.SCHAR),
-            # Token para identificadores, usa regex para capturar padrões alfanuméricos
-            Token(r"^[a-z]+[\d\w]*$", Token.SIDENTIFICADOR, use_regex=True),
-            # Token para números, usa regex para capturar dígitos e pontos decimais
-            Token(r"^[0-9.]+$", Token.SNUMERO, use_regex=True),
+            # Identificadores são capturados com regex para padrões alfanuméricos
+            Token(r"^[a-zA-Z_]\w*$", Token.SIDENTIFICADOR, use_regex=True),
+            # Números são capturados com regex para dígitos e pontos decimais
+            Token(r"^\d+(\.\d+)?$", Token.SNUMERO, use_regex=True),
             Token(".", Token.SPONTO),
             Token(";", Token.SPONTO_VIRGULA),
             Token(",", Token.SVIRGULA),
@@ -121,8 +150,21 @@ class LexicalAnalyzer:
             Token("+", Token.SMAIS),
             Token("-", Token.SMENOS),
             Token("*", Token.SVEZES),
-            Token("div", Token.SDIV)
+            Token("div", Token.SDIV),
+            Token("/", Token.SDIV_FLUTUANTE)
         ]
+
+    def remove_comments(self, text: str) -> str:
+        """
+        Remove comentários delimitados por `{}` no código de entrada.
+
+        Args:
+            text (str): Código fonte de entrada.
+
+        Returns:
+            str: Código sem comentários.
+        """
+        return re.sub(r'\{.*?\}', '', text, flags=re.DOTALL)
 
     def tokenize(self, text: str) -> list:
         """
@@ -132,26 +174,45 @@ class LexicalAnalyzer:
             text (str): O código fonte a ser analisado.
 
         Returns:
-            list: Lista de tokens correspondentes.
+            list: Lista de tokens identificados.
         """
-        tokens = []  # Inicializa uma lista para armazenar os tokens identificados
-        words = text.split()  # Divide o texto em palavras
+        tokens = []  # Inicializa a lista de tokens encontrados
+        text = self.remove_comments(text)  # Remove comentários do código fonte
+
+        # Divide o texto em tokens usando regex para palavras, operadores e delimitadores
+        words = re.findall(r"\w+|:=|[<>]=|!=|==|'[a-zA-Z0-9]'|/|[^\s\w]", text)  # Inclui '/' no regex
+
         for word in words:
-            matched = False  # Define um flag para verificar correspondência
+            matched = False  # Flag para verificar se o token foi identificado
+            
+            # Verifica se o token é um caractere entre aspas simples
+            if re.match(r"^'[a-zA-Z0-9]'$", word):
+                tokens.append(Token(word, Token.SCHAR))  # Adiciona o token do tipo `SCHAR`
+                matched = True
+                continue
+
+            # Verifica correspondência com tokens definidos na lista de tokens
             for token in self.tokens:
                 if token.is_(word):  # Verifica se o token corresponde à palavra
-                    tokens.append(token)  # Adiciona o token à lista de tokens identificados
+                    tokens.append(Token(word, token.type))  # Adiciona à lista de tokens
                     matched = True
                     break
+
+            # Exibe mensagem de aviso para tokens não identificados
             if not matched:
-                print(f"Warning: Unknown token '{word}'")  # Exibe uma mensagem para tokens desconhecidos
+                print(f"Warning: Unknown token '{word}'") # Exibe uma mensagem para tokens desconhecidos
         return tokens  # Retorna a lista de tokens encontrados
 
 # Implementação da SymbolTable para armazenar e gerenciar identificadores
 class SymbolTable:
+    """
+    Tabela de símbolos que armazena e gerencia identificadores do código.
+
+    Attributes:
+        symbols (dict): Dicionário de símbolos, onde a chave é o nome e o valor é o tipo do símbolo.
+    """
     def __init__(self):
-        # Um dicionário para armazenar símbolos, onde a chave é o nome do símbolo
-        self.symbols = {}
+        self.symbols = {}  # Inicializa o dicionário de símbolos
 
     def add_symbol(self, name: str, type: TokenType):
         """
