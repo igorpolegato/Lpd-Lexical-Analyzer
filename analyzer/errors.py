@@ -1,0 +1,1 @@
+# Centralizar o tratamento de erros e advertências aqui para organizar classes e funções
