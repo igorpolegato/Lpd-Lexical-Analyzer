@@ -1,4 +1,5 @@
 # main.py
+from tabulate import tabulate
 import sys
 from analyzer.analyzer import LexicalAnalyzer, SymbolTable, Token
 
@@ -17,6 +18,8 @@ def main():
 
     tokens = analyser.tokenize(code)
 
+    df = tabulate(tokens, headers=['Token', 'Tipo'], tablefmt="fancy_grid")
+    print(df)
 
 if __name__ == "__main__":
     main()
