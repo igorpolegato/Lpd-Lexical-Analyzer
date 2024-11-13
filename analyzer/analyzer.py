@@ -73,6 +73,7 @@ class Token:
     SVEZES = TokenType("svezes")
     SDIV = TokenType("sdiv")
     SDIV_FLUTUANTE = TokenType("sdiv_flutuante")
+    STEXTO = TokenType("stexto")
 
     def __init__(self, lexeme: Union[str, int], ttype: TokenType, use_regex=False) -> None:
         self.lexeme = lexeme  # Armazena o valor ou padrão do token
@@ -95,6 +96,9 @@ class Token:
         # Se não usa regex, verifica se o lexema é exatamente igual ao valor fornecido
         return self.lexeme == tk
 
+    def __str__(self) -> str:
+        return self.type.name
+
 # Define a classe do analisador léxico
 class LexicalAnalyzer:
     """
@@ -106,6 +110,15 @@ class LexicalAnalyzer:
     def __init__(self) -> None:
         # Inicializa a lista de tokens com mapeamento de cada lexema para seu tipo correspondente
         self.tokens = [
+            Token("and", Token.SAND),
+            Token("or", Token.SOR),
+            Token("not", Token.SNOT),
+            Token("==", Token.SIGUAL),
+            Token("<>", Token.SDIFERENTE),
+            Token(">=", Token.SMAIOR_IGUAL),
+            Token("<=", Token.SMENOR_IGUAL),
+            Token(">", Token.SMAIOR),
+            Token("<", Token.SMENOR),
             Token("program", Token.SPROGRAM),
             Token("begin", Token.SBEGIN),
             Token("end", Token.SEND),
@@ -127,10 +140,6 @@ class LexicalAnalyzer:
             Token("int", Token.SINT),
             Token("float", Token.SFLOAT),
             Token("char", Token.SCHAR),
-            # Identificadores são capturados com regex para padrões alfanuméricos
-            Token(r"^[a-zA-Z_]\w*$", Token.SIDENTIFICADOR, use_regex=True),
-            # Números são capturados com regex para dígitos e pontos decimais
-            Token(r"^\d+(\.\d+)?$", Token.SNUMERO, use_regex=True),
             Token(".", Token.SPONTO),
             Token(";", Token.SPONTO_VIRGULA),
             Token(",", Token.SVIRGULA),
@@ -138,20 +147,16 @@ class LexicalAnalyzer:
             Token(")", Token.SFECHA_PARENTESES),
             Token("[", Token.SABRE_COLCHETE),
             Token("]", Token.SFECHA_COLCHETE),
-            Token("and", Token.SAND),
-            Token("or", Token.SOR),
-            Token("not", Token.SNOT),
-            Token(">", Token.SMAIOR),
-            Token("<", Token.SMENOR),
-            Token("==", Token.SIGUAL),
-            Token("<>", Token.SDIFERENTE),
-            Token(">=", Token.SMAIOR_IGUAL),
-            Token("<=", Token.SMENOR_IGUAL),
             Token("+", Token.SMAIS),
             Token("-", Token.SMENOS),
             Token("*", Token.SVEZES),
             Token("div", Token.SDIV),
-            Token("/", Token.SDIV_FLUTUANTE)
+            Token("/", Token.SDIV_FLUTUANTE),
+            # Identificadores são capturados com regex para padrões alfanuméricos
+            Token(r"^[a-zA-Z_]\w*$", Token.SIDENTIFICADOR, use_regex=True),
+            # Números são capturados com regex para dígitos e pontos decimais
+            Token(r"^\d+(\.\d+)?$", Token.SNUMERO, use_regex=True),
+            Token(r"\'.{0,1}\'|\".*\"", Token.STEXTO, use_regex=True)
         ]
 
     def remove_comments(self, text: str) -> str:
@@ -166,7 +171,7 @@ class LexicalAnalyzer:
         """
         return re.sub(r'\{.*?\}', '', text, flags=re.DOTALL)
 
-    def tokenize(self, text: str) -> list:
+    def tokenize(self, text: str) -> list[tuple[Union[str, int], Token]]:
         """
         Realiza a tokenização de uma string de entrada.
 
@@ -180,28 +185,28 @@ class LexicalAnalyzer:
         text = self.remove_comments(text)  # Remove comentários do código fonte
 
         # Divide o texto em tokens usando regex para palavras, operadores e delimitadores
-        words = re.findall(r"\w+|:=|[<>]=|!=|==|'[a-zA-Z0-9]'|/|[^\s\w]", text)  # Inclui '/' no regex
+        word_patterns = [
+            r"\w+",
+            r":=",
+            r"<>|[<>]={0,1}",
+            r"!=",
+            r"==",
+            r"\'.{0,1}\'|\".*\"",
+            r"/",
+            r"[^\s\w]"
+        ]
+
+        words = re.findall(r"|".join(word_patterns), text)
 
         for word in words:
-            matched = False  # Flag para verificar se o token foi identificado
-
-            # Verifica se o token é um caractere entre aspas simples
-            if re.match(r"^'[a-zA-Z0-9]'$", word):
-                tokens.append(Token(word, Token.SCHAR))  # Adiciona o token do tipo `SCHAR`
-                matched = True
-                continue
-
-            # Verifica correspondência com tokens definidos na lista de tokens
             for token in self.tokens:
-                if token.is_(word):  # Verifica se o token corresponde à palavra
-                    tokens.append(Token(word, token.type))  # Adiciona à lista de tokens
-                    matched = True
+
+                if token.is_(word):
+                    tokens.append((word, token))
                     break
 
-            # Exibe mensagem de aviso para tokens não identificados
-            if not matched:
-                print(f"Warning: Unknown token '{word}'") # Exibe uma mensagem para tokens desconhecidos
-        return tokens  # Retorna a lista de tokens encontrados
+        return tokens
+
 
 # Implementação da SymbolTable para armazenar e gerenciar identificadores
 class SymbolTable:

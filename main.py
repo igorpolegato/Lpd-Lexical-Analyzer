@@ -1,39 +1,25 @@
 # main.py
-
+from tabulate import tabulate
 import sys
-from analyzer.analyzer import LexicalAnalyzer, SymbolTable, Token 
+from analyzer.analyzer import LexicalAnalyzer, SymbolTable, Token
 
 def main():
-    # Carrega o código-fonte da entrada do usuário ou de um arquivo
-    if len(sys.argv) > 1:
-        # Se o arquivo foi fornecido como argumento
-        with open(sys.argv[1], 'r') as file:
-            source_code = file.read()
+    analyser = LexicalAnalyzer()
+
+    if (len(sys.argv)) > 1:
+        file_path = sys.argv[1]
+
     else:
-        # Solicita o código fonte ao usuário
-        source_code = input("Digite o código fonte para análise:\n")
-
-    # Inicializa o analisador léxico e a tabela de símbolos
-    analyzer = LexicalAnalyzer()
-    symbol_table = SymbolTable()
-
-    # Realiza a análise léxica do código fonte
-    tokens = analyzer.tokenize(source_code)
-
-    # Processa e exibe cada token identificado
-    print("\nTokens Identificados:")
-    for token in tokens:
-        print(f"Token: {token.type} - Lexema: {token.lexeme}")
-
-        # Adiciona identificadores à tabela de símbolos
-        if token.type == Token.SIDENTIFICADOR:
-            symbol_table.add_symbol(token.lexeme, token.type)
+        file_path = input("Digite o caminho do arquivo para análise: ")
 
 
-    # Exibe a tabela de símbolos
-    print("\nTabela de Símbolos:")
-    for name, symbol_type in symbol_table.symbols.items():
-        print(f"Nome: {name} - Tipo: {symbol_type}")
+    with open(file_path, "r", encoding="utf-8") as file:
+        code = file.read()
+
+    tokens = analyser.tokenize(code)
+
+    df = tabulate(tokens, headers=['Token', 'Tipo'], tablefmt="fancy_grid")
+    print(df)
 
 if __name__ == "__main__":
     main()
