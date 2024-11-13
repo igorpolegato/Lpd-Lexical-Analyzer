@@ -1,0 +1,47 @@
+program TestePrograma;
+
+var
+    int Contador, Resultado, i;
+    char simbolo;
+
+procedure Calcular(int valor1, int valor2);
+begin
+    Resultado := valor1 + valor2;
+    writed(Resultado);
+end;
+
+function Multiplicar(int x, int y): int;
+begin
+    Multiplicar := x * y;
+end;
+
+begin
+    Contador := 0;
+    Resultado := 10;
+    simbolo := 'B';
+
+    while Contador <= 5 do
+    begin
+        writed(Contador);
+        Contador := Contador + 1;
+    end;
+
+    repeat
+        writed(Resultado);
+        Resultado := Resultado - 1;
+    until Resultado < 5;
+
+    if Contador = 6 then
+        writed(Contador)
+    else if Contador <> 6 then
+        writed(Resultado);
+
+    for i := 1 to 10 do
+    begin
+        writed(i);
+    end;
+
+    Calcular(3, 4);
+    Resultado := Multiplicar(2, 3);
+    writed(Resultado);
+end.
