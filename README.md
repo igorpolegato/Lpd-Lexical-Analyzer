@@ -30,3 +30,7 @@ Após a análise, os resultados podem ser exportados em:
 
 ### 3. **Ignorar Comentários**
 O analisador remove automaticamente qualquer comentário delimitado por `{}` antes da análise.
+
+## 🤝🏼 Contribuidores
+- **Pedro Furtado** ([Seu GitHub](https://github.com/PedroFurtadoC))
+- **Igor Polegato** ([GitHub](https://github.com/igorpolegato))
