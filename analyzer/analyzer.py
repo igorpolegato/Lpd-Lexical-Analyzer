@@ -1,3 +1,17 @@
+"""
+Módulo `analyzer`
+
+Este módulo implementa o analisador léxico para a linguagem LPD (Linguagem de Programação Didática).
+O analisador léxico é responsável por processar o código-fonte e identificar tokens, seus tipos, 
+e estruturas léxicas, fornecendo suporte para análise posterior no processo de compilação.
+
+Classes:
+    - TokenType: Representa um tipo genérico de token.
+    - Token: Representa um token específico com seu valor (lexema) e tipo.
+    - LexicalAnalyzer: Realiza a análise léxica, identificando tokens em código fonte.
+    - SymbolTable: Implementa uma tabela de símbolos para gerenciamento de identificadores.
+"""
+
 from typing import Union, Optional
 import re
 
@@ -10,25 +24,32 @@ class TokenType:
         name (str): O nome que descreve o tipo do token.
     """
     def __init__(self, name: str) -> None:
-        self.name = name  # Armazena o nome do tipo do token
+        """
+        Inicializa um novo tipo de token.
+
+        Args:
+            name (str): O nome que descreve o tipo do token.
+        """
+        self.name = name
 
     def __str__(self) -> str:
-        return self.name  # Retorna o nome do token quando convertido em string
-
+        """Retorna o nome do tipo do token como string."""
+        return self.name  
+    
     def __repr__(self) -> str:
-        return self.name  # Retorna o nome do token ao imprimir ou representar o objeto
+        """Retorna a representação textual do tipo do token."""
+        return self.name
 
-# Define uma classe para representar tokens específicos
 class Token:
     """
-    Representa um token específico com seu lexema e tipo, incluindo o uso de regex quando necessário.
+    Representa um token específico com seu lexema e tipo, incluindo o uso de regex.
 
     Attributes:
-        lexeme (str|int): O valor ou padrão do token.
-        type (TokenType): O tipo do token, um objeto TokenType.
-        use_regex (bool): Indica se o token será identificado por regex.
+        lexeme (str | int): O valor literal ou padrão do token.
+        type (TokenType): O tipo do token, representado por um objeto `TokenType`.
+        use_regex (bool): Indica se o token deve ser identificado por regex.
     """
-    # Constantes que representam cada tipo de token, com base nos requisitos e especificações
+    # Define os principais tipos de tokens suportados
     SPROGRAM = TokenType("sprogram")
     SBEGIN = TokenType("sbegin")
     SEND = TokenType("send")
@@ -76,39 +97,47 @@ class Token:
     STEXTO = TokenType("stexto")
 
     def __init__(self, lexeme: Union[str, int], ttype: TokenType, use_regex=False) -> None:
-        self.lexeme = lexeme  # Armazena o valor ou padrão do token
-        self.type = ttype  # Armazena o tipo do token (um objeto TokenType)
-        self.use_regex = use_regex  # Define se o token deve ser identificado por regex
+        """
+        Inicializa um token específico.
+
+        Args:
+            lexeme (str | int): O valor literal ou padrão do token.
+            ttype (TokenType): O tipo do token.
+            use_regex (bool): Indica se o token será identificado por regex.
+        """
+        self.lexeme = lexeme
+        self.type = ttype
+        self.use_regex = use_regex
 
     def is_(self, tk: Union[str, int]):
         """
-        Verifica se o lexema do token corresponde ao valor fornecido (tk).
+        Verifica se o lexema do token corresponde ao valor fornecido.
 
         Args:
-            tk (str|int): O valor a ser comparado.
+            tk (str | int): O valor a ser comparado.
 
         Returns:
-            bool: True se corresponder, False caso contrário.
+            bool: `True` se corresponder, `False` caso contrário.
         """
         if self.use_regex:
-            # Se o token usa regex, verifica correspondência usando re.match
             return re.match(self.lexeme, tk, re.I) is not None
-        # Se não usa regex, verifica se o lexema é exatamente igual ao valor fornecido
         return self.lexeme == tk
 
     def __str__(self) -> str:
+        """Retorna o nome do tipo do token."""
         return self.type.name
 
-# Define a classe do analisador léxico
 class LexicalAnalyzer:
     """
-    Responsável por analisar o código fonte, removendo comentários e identificando tokens.
+    Implementa o analisador léxico para identificar tokens em um código fonte.
 
     Attributes:
-        tokens (list): Lista de tokens mapeados a lexemas para correspondência durante a análise.
+        tokens (list[Token]): Lista de tokens disponíveis para análise.
     """
     def __init__(self) -> None:
-        # Inicializa a lista de tokens com mapeamento de cada lexema para seu tipo correspondente
+        """
+        Inicializa o analisador léxico com os tokens suportados.
+        """
         self.tokens = [
             Token("and", Token.SAND),
             Token("or", Token.SOR),
@@ -152,39 +181,41 @@ class LexicalAnalyzer:
             Token("*", Token.SVEZES),
             Token("div", Token.SDIV),
             Token("/", Token.SDIV_FLUTUANTE),
-            # Identificadores são capturados com regex para padrões alfanuméricos
+
+            # Captura identificadores alfanuméricos que começam com uma letra ou sublinhado.
             Token(r"^[a-zA-Z_]\w*$", Token.SIDENTIFICADOR, use_regex=True),
-            # Números são capturados com regex para dígitos e pontos decimais
+            
+            # Captura números inteiros ou de ponto flutuante.
             Token(r"^\d+(\.\d+)?$", Token.SNUMERO, use_regex=True),
+            
+            # Captura literais de texto delimitados por aspas simples ou duplas.
             Token(r"\'.{0,1}\'|\".*\"", Token.STEXTO, use_regex=True)
         ]
 
     def remove_comments(self, text: str) -> str:
         """
-        Remove comentários delimitados por `{}` no código de entrada.
+        Remove comentários no formato `{...}` do código fonte.
 
         Args:
             text (str): Código fonte de entrada.
 
         Returns:
-            str: Código sem comentários.
+            str: Código fonte sem comentários.
         """
         return re.sub(r'\{.*?\}', '', text, flags=re.DOTALL)
 
     def tokenize(self, text: str) -> list[tuple[Union[str, int], Token]]:
         """
-        Realiza a tokenização de uma string de entrada.
+        Realiza a análise léxica, identificando tokens no código.
 
         Args:
             text (str): O código fonte a ser analisado.
 
         Returns:
-            list: Lista de tokens identificados.
+            list[tuple[str, Token]]: Lista de tokens encontrados.
         """
-        tokens = []  # Inicializa a lista de tokens encontrados
-        text = self.remove_comments(text)  # Remove comentários do código fonte
-
-        # Divide o texto em tokens usando regex para palavras, operadores e delimitadores
+        tokens = []
+        text = self.remove_comments(text)
         word_patterns = [
             r"\w+",
             r":=",
@@ -195,7 +226,6 @@ class LexicalAnalyzer:
             r"/",
             r"[^\s\w]"
         ]
-
         words = re.findall(r"|".join(word_patterns), text)
 
         for word in words:
@@ -204,24 +234,22 @@ class LexicalAnalyzer:
                 if token.is_(word):
                     tokens.append((word, token))
                     break
-
         return tokens
 
-
-# Implementação da SymbolTable para armazenar e gerenciar identificadores
 class SymbolTable:
     """
-    Tabela de símbolos que armazena e gerencia identificadores do código.
+    Implementa a tabela de símbolos para armazenar e gerenciar identificadores.
 
     Attributes:
-        symbols (dict): Dicionário de símbolos, onde a chave é o nome e o valor é o tipo do símbolo.
+        symbols (dict): Dicionário de símbolos com nome e tipo.
     """
     def __init__(self):
-        self.symbols = {}  # Inicializa o dicionário de símbolos
+        """Inicializa uma tabela de símbolos."""
+        self.symbols = {}
 
     def add_symbol(self, name: str, type: TokenType):
         """
-        Adiciona um símbolo à tabela, se ainda não existir.
+        Adiciona um símbolo à tabela.
 
         Args:
             name (str): Nome do símbolo.
@@ -230,29 +258,29 @@ class SymbolTable:
         if name not in self.symbols:
             self.symbols[name] = type
         else:
-            print(f"Warning: Symbol '{name}' already exists.")
+            print(f"Warning: O Símbolo '{name}' já existe.")
 
     def get_symbol(self, name: str) -> Optional[TokenType]:
         """
-        Recupera o tipo de um símbolo armazenado na tabela.
+        Recupera o tipo de um símbolo.
 
         Args:
             name (str): Nome do símbolo.
 
         Returns:
-            Optional[TokenType]: Tipo do símbolo ou None se não existir.
+            Optional[TokenType]: Tipo do símbolo ou `None`.
         """
         return self.symbols.get(name, None)
 
     def update_symbol(self, name: str, new_type: TokenType):
         """
-        Atualiza o tipo de um símbolo existente na tabela.
+        Atualiza o tipo de um símbolo na tabela.
 
         Args:
             name (str): Nome do símbolo.
-            new_type (TokenType): Novo tipo a ser atribuído ao símbolo.
+            new_type (TokenType): Novo tipo do símbolo.
         """
         if name in self.symbols:
             self.symbols[name] = new_type
         else:
-            print(f"Warning: Symbol '{name}' does not exist.")
+            print(f"Warning: O Símbolo '{name}' não existe.")

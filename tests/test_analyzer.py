@@ -1,83 +1,187 @@
+"""
+Módulo de Testes Unitários
+
+Este módulo utiliza o framework `unittest` para realizar testes unitários
+nas funcionalidades do analisador léxico (`LexicalAnalyzer`) e da tabela de símbolos (`SymbolTable`).
+
+Os testes incluem:
+- Verificação do reconhecimento de palavras reservadas, operadores, delimitadores, números, identificadores e literais de texto.
+- Remoção correta de comentários no código fonte.
+- Gerenciamento e validação de operações na tabela de símbolos.
+- Tratamento de tokens desconhecidos e análise de trechos combinados de código.
+
+Classes:
+    - TestLexicalAnalyzer: Testa o funcionamento do analisador léxico.
+    - TestSymbolTable: Testa a funcionalidade da tabela de símbolos.
+"""
+
 import unittest
+import re
 from analyzer.analyzer import LexicalAnalyzer, SymbolTable, Token, TokenType
 
-# Classe de teste para o analisador léxico
-class TestLexicalAnalyzer(unittest.TestCase):
 
-    # Configuração inicial antes de cada teste
+class TestLexicalAnalyzer(unittest.TestCase):
+    """
+    Classe de Testes para o Analisador Léxico.
+
+    Esta classe implementa métodos de teste para validar a funcionalidade do analisador léxico,
+    garantindo o reconhecimento correto de tokens no código fonte.
+    """
+
     def setUp(self):
-        # Inicializa uma instância do analisador léxico
+        """Inicializa o analisador léxico antes de cada teste."""
         self.analyzer = LexicalAnalyzer()
 
-    # Testa a tokenização de palavras reservadas
     def test_tokenize_reserved_words(self):
-        # Entrada com palavras reservadas
-        text = "program begin end"
-        # Realiza a tokenização
+        """Teste: Valida o reconhecimento de palavras reservadas."""
+        text = (
+            "program begin end var procedure function if then else while do repeat until "
+            "char div not or writed writec readc readd int"
+        )
         tokens = self.analyzer.tokenize(text)
-        # Verifica se os tokens correspondem aos tipos esperados
-        self.assertEqual(tokens[0].type, Token.SPROGRAM)
-        self.assertEqual(tokens[1].type, Token.SBEGIN)
-        self.assertEqual(tokens[2].type, Token.SEND)
+        expected_types = [
+            Token.SPROGRAM, Token.SBEGIN, Token.SEND, Token.SVAR, Token.SPROCEDURE, Token.SFUNCTION,
+            Token.SIF, Token.STHEN, Token.SELSE, Token.SWHILE, Token.SDO, Token.SREPEAT, Token.SUNTIL,
+            Token.SCHAR, Token.SDIV, Token.SNOT, Token.SOR, Token.SWRITED, Token.SWRITEC,
+            Token.SREADC, Token.SREADD, Token.SINT,
+        ]
+        self.assertEqual([token.type for _, token in tokens], expected_types)
 
-    # Testa a tokenização de identificadores
-    def test_tokenize_identifiers(self):
-        # Entrada com identificadores
-        text = "variableName anotherVar"
-        # Realiza a tokenização
+    def test_tokenize_operators_and_delimiters(self):
+        """Teste: Valida o reconhecimento de operadores e delimitadores."""
+        text = "+ - * / div := < > <= >= == <> ( ) [ ] , ; ."
         tokens = self.analyzer.tokenize(text)
-        # Verifica se os tokens identificados são do tipo 'identificador'
-        self.assertEqual(tokens[0].type, Token.SIDENTIFICADOR)
-        self.assertEqual(tokens[1].type, Token.SIDENTIFICADOR)
+        expected_types = [
+            Token.SMAIS, Token.SMENOS, Token.SVEZES, Token.SDIV_FLUTUANTE, Token.SDIV, Token.SATRIBUICAO,
+            Token.SMENOR, Token.SMAIOR, Token.SMENOR_IGUAL, Token.SMAIOR_IGUAL, Token.SIGUAL,
+            Token.SDIFERENTE, Token.SABRE_PARENTESES, Token.SFECHA_PARENTESES, Token.SABRE_COLCHETE,
+            Token.SFECHA_COLCHETE, Token.SVIRGULA, Token.SPONTO_VIRGULA, Token.SPONTO,
+        ]
+        self.assertEqual([token.type for _, token in tokens], expected_types)
 
-    # Testa a tokenização de números inteiros e de ponto flutuante
     def test_tokenize_numbers(self):
-        # Entrada com números
-        text = "123 45.67"
-        # Realiza a tokenização
+        """Teste: Valida o reconhecimento de números inteiros e de ponto flutuante."""
+        text = "123 45.67 0.99 1000"
         tokens = self.analyzer.tokenize(text)
-        # Verifica se os tokens identificados são do tipo 'número'
-        self.assertEqual(tokens[0].type, Token.SNUMERO)
-        self.assertEqual(tokens[1].type, Token.SNUMERO)
+        expected = [
+            ("123", Token.SNUMERO),
+            ("45.67", Token.SNUMERO),
+            ("0.99", Token.SNUMERO),
+            ("1000", Token.SNUMERO),
+        ]
+        for i, (lexeme, token) in enumerate(tokens):
+            self.assertEqual(token.type, expected[i][1], f"Token inesperado: {token.type} para lexema '{lexeme}'")
+            self.assertTrue(re.match(r"^\d+(\.\d+)?$", lexeme), f"Formato inválido para número: {lexeme}")
 
-    # Testa o comportamento com tokens desconhecidos
+    def test_tokenize_identifiers(self):
+        """Teste: Valida o reconhecimento de identificadores."""
+        text = "variableName another_var X Y variable123"
+        tokens = self.analyzer.tokenize(text)
+        for lexeme, token in tokens:
+            self.assertEqual(token.type, Token.SIDENTIFICADOR)
+            self.assertTrue(re.match(r"^[a-zA-Z_]\w*$", lexeme))
+
+    def test_tokenize_text(self):
+        """Teste: Valida o reconhecimento de literais de texto."""
+        text = "'A' 'Hello' '123' \"String in quotes\""
+        tokens = self.analyzer.tokenize(text)
+        expected = [
+            ("'A'", Token.STEXTO),
+            ("'Hello'", Token.STEXTO),
+            ("'123'", Token.STEXTO),
+            ("\"String in quotes\"", Token.STEXTO),
+        ]
+        for i, (lexeme, token) in enumerate(tokens):
+            self.assertEqual(token.type, expected[i][1], f"Token inesperado: {token.type} para lexema '{lexeme}'")
+            self.assertTrue(re.match(r"^'.*?'|\".*?\"", lexeme), f"Formato inválido para texto: {lexeme}")
+
+    def test_combined_code_snippet(self):
+        """Teste: Valida trechos de código combinando palavras reservadas, identificadores e operadores."""
+        text = """
+        program Example;
+        var int A, B;
+        A := 10;
+        if A > 5 then
+            writed(A);
+        """
+        tokens = self.analyzer.tokenize(text)
+        expected_types = [
+            Token.SPROGRAM, Token.SIDENTIFICADOR, Token.SPONTO_VIRGULA, Token.SVAR, Token.SINT,
+            Token.SIDENTIFICADOR, Token.SVIRGULA, Token.SIDENTIFICADOR, Token.SPONTO_VIRGULA,
+            Token.SIDENTIFICADOR, Token.SATRIBUICAO, Token.SNUMERO, Token.SPONTO_VIRGULA, Token.SIF,
+            Token.SIDENTIFICADOR, Token.SMAIOR, Token.SNUMERO, Token.STHEN, Token.SWRITED,
+            Token.SABRE_PARENTESES, Token.SIDENTIFICADOR, Token.SFECHA_PARENTESES, Token.SPONTO_VIRGULA,
+        ]
+        self.assertEqual([token.type for _, token in tokens], expected_types)
+
+    def test_tokenize_with_comments(self):
+        """Teste: Valida a remoção de comentários no formato `{}`."""
+        text = """
+        program Test; { This is a comment }
+        var int A;
+        { Multi-line
+          comment }
+        A := 10; writed(A);
+        """
+        tokens = self.analyzer.tokenize(text)
+        self.assertNotIn("{", [lexeme for lexeme, _ in tokens])
+        self.assertNotIn("}", [lexeme for lexeme, _ in tokens])
+
     def test_unknown_token(self):
-        # Entrada com um token desconhecido
-        text = "@"
-        # Realiza a tokenização
+        """Teste: Verifica que tokens desconhecidos não são reconhecidos."""
+        text = "@ # $ %"
         tokens = self.analyzer.tokenize(text)
-        # Verifica se nenhum token foi identificado para '@'
-        self.assertTrue(len(tokens) == 0)  # Supondo que tokens não reconhecidos são ignorados ou alertados
+        self.assertTrue(len(tokens) == 0)
 
-# Classe de teste para a tabela de símbolos
+
 class TestSymbolTable(unittest.TestCase):
+    """
+    Classe de Testes para a Tabela de Símbolos.
 
-    # Configuração inicial antes de cada teste
+    Testa as funcionalidades da `SymbolTable`, garantindo que identificadores sejam gerenciados corretamente.
+    """
+
     def setUp(self):
-        # Inicializa uma instância da tabela de símbolos
+        """Inicializa a tabela de símbolos antes de cada teste."""
         self.symbol_table = SymbolTable()
 
-    # Testa a adição e recuperação de símbolos na tabela
-    def test_add_and_get_symbol(self):
-        # Adiciona um símbolo à tabela
+    def test_add_and_retrieve_symbols(self):
+        """Teste: Adiciona e recupera símbolos da tabela."""
         self.symbol_table.add_symbol("var1", Token.SINT)
-        # Verifica se o símbolo pode ser recuperado corretamente
+        self.symbol_table.add_symbol("var2", Token.SFLOAT)
         self.assertEqual(self.symbol_table.get_symbol("var1"), Token.SINT)
+        self.assertEqual(self.symbol_table.get_symbol("var2"), Token.SFLOAT)
 
-    # Testa a atualização do tipo de um símbolo existente
-    def test_update_symbol(self):
-        # Adiciona um símbolo e depois atualiza seu tipo
+    def test_update_existing_symbol(self):
+        """Teste: Atualiza o tipo de um símbolo existente."""
         self.symbol_table.add_symbol("var1", Token.SINT)
         self.symbol_table.update_symbol("var1", Token.SFLOAT)
-        # Verifica se o tipo foi atualizado corretamente
         self.assertEqual(self.symbol_table.get_symbol("var1"), Token.SFLOAT)
 
-    # Testa o comportamento ao tentar adicionar um símbolo duplicado
-    def test_duplicate_symbol_warning(self):
-        # Adiciona um símbolo e tenta adicionar o mesmo símbolo novamente
+    def test_add_duplicate_symbol(self):
+        """Teste: Verifica que símbolos duplicados não sobrescrevem os existentes."""
         self.symbol_table.add_symbol("var1", Token.SINT)
-        self.symbol_table.add_symbol("var1", Token.SFLOAT)  # Deve exibir um aviso, mas não substituir o símbolo
+        self.symbol_table.add_symbol("var1", Token.SFLOAT)
+        self.assertEqual(self.symbol_table.get_symbol("var1"), Token.SINT)
 
-# Executa os testes
+    def test_symbol_not_found(self):
+        """Teste: Recupera um símbolo inexistente."""
+        result = self.symbol_table.get_symbol("nonexistent")
+        self.assertIsNone(result)
+
+    def test_remove_symbol(self):
+        """Teste: Remove um símbolo da tabela."""
+        self.symbol_table.add_symbol("var1", Token.SINT)
+        self.symbol_table.symbols.pop("var1", None)
+        self.assertIsNone(self.symbol_table.get_symbol("var1"))
+
+    def test_large_symbol_table(self):
+        """Teste: Gerencia uma tabela de símbolos com grande quantidade de entradas."""
+        for i in range(1000):
+            self.symbol_table.add_symbol(f"var{i}", Token.SINT)
+        self.assertEqual(len(self.symbol_table.symbols), 1000)
+        self.assertEqual(self.symbol_table.get_symbol("var999"), Token.SINT)
+
+
 if __name__ == '__main__':
     unittest.main()
