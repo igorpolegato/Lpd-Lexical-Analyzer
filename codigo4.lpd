@@ -1,0 +1,29 @@
+program Codigo4;
+
+var
+    char LetraAtual, LetraFinal; { Armazena as letras atuais e finais }
+    int Contador; { Contador para o loop }
+
+function ProximaLetra(char Letra): char; { Função para determinar a próxima letra }
+begin
+    if Letra < 'Z' then { Verifica se a letra não é 'Z' }
+        ProximaLetra := Letra + 1 { Retorna a próxima letra no alfabeto }
+    else
+        ProximaLetra := 'A'; { Retorna 'A' caso seja 'Z' }
+end;
+
+begin
+    LetraAtual := 'A'; { Inicializa com a primeira letra }
+    Contador := 1; { Inicializa o contador }
+
+    while Contador <= 5 do { Loop enquanto Contador <= 5 }
+    begin
+        writed(Contador); { Exibe o valor do contador }
+        writec(LetraAtual); { Exibe a letra atual }
+        LetraAtual := ProximaLetra(LetraAtual); { Obtém a próxima letra }
+        Contador := Contador + 1; { Incrementa o contador }
+    end;
+
+    LetraFinal := ProximaLetra(LetraAtual); { Determina a letra final após o loop }
+    writec(LetraFinal); { Exibe a letra final }
+end.

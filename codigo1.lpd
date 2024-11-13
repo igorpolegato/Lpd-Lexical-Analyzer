@@ -1,0 +1,39 @@
+program Codigo1;
+
+var
+    int Achei;  { Variável para controle do loop }
+    int Numero, Linha, Coluna, Local_Erro; { Variáveis auxiliares para cálculos }
+    char c; { Armazena um caractere }
+
+procedure SomaArray(int Dados[100]); { Procedimento para somar elementos de um array }
+begin
+    { Lógica de SomaArray será implementada aqui }
+end;
+
+begin
+    { Programa principal inicia aqui }
+
+    Achei := 1; { Inicialização de variável }
+    Numero := 5; { Atribuição de valor à variável }
+    Local_Erro := Coluna * (Linha + 160); { Cálculo com variáveis auxiliares }
+
+    if Numero < 10 then { Verifica se o número é menor que 10 }
+        writed(Numero) { Exibe o valor de Numero }
+    else
+        writed(Local_Erro); { Exibe Local_Erro se Numero >= 10 }
+
+    while Achei <= 10 do { Loop enquanto Achei for menor ou igual a 10 }
+    begin
+        writed(Achei); { Escreve o valor de Achei }
+        Achei := Achei + 1; { Incrementa Achei }
+    end;
+
+    repeat { Loop repetição até que a condição seja verdadeira }
+        writed(Achei); { Exibe o valor atual de Achei }
+        Achei := Achei - 1; { Decrementa Achei }
+    until Achei < 1; { Finaliza quando Achei for menor que 1 }
+
+    c := 'A'; { Atribuição de caractere }
+    writec(c); { Exibe o caractere c }
+    writed(c); { Exibe o código ASCII de c }
+end.

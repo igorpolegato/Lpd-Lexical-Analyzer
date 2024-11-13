@@ -1,47 +1,49 @@
-program TestePrograma;
+program Codigo2;
 
 var
-    int Contador, Resultado, i;
-    char simbolo;
+    int Contador, Resultado, i; { Contadores e variáveis para cálculos }
+    char simbolo; { Armazena um símbolo }
 
-procedure Calcular(int valor1, int valor2);
+procedure Calcular(int valor1, int valor2); { Procedimento para soma de dois valores }
 begin
-    Resultado := valor1 + valor2;
-    writed(Resultado);
+    Resultado := valor1 + valor2; { Soma os valores }
+    writed(Resultado); { Exibe o resultado }
 end;
 
-function Multiplicar(int x, int y): int;
+function Multiplicar(int x, int y): int; { Função para multiplicar dois inteiros }
 begin
-    Multiplicar := x * y;
+    Multiplicar := x * y; { Retorna o produto }
 end;
 
 begin
-    Contador := 0;
-    Resultado := 10;
-    simbolo := 'B';
+    { Programa principal inicia aqui }
 
-    while Contador <= 5 do
+    Contador := 0; { Inicialização do contador }
+    Resultado := 10; { Valor inicial de Resultado }
+    simbolo := 'B'; { Atribuição de símbolo }
+
+    while Contador <= 5 do { Loop enquanto Contador <= 5 }
     begin
-        writed(Contador);
-        Contador := Contador + 1;
+        writed(Contador); { Exibe o valor do Contador }
+        Contador := Contador + 1; { Incrementa Contador }
     end;
 
-    repeat
-        writed(Resultado);
-        Resultado := Resultado - 1;
-    until Resultado < 5;
+    repeat { Loop repetição até que a condição seja verdadeira }
+        writed(Resultado); { Exibe o Resultado }
+        Resultado := Resultado - 1; { Decrementa Resultado }
+    until Resultado < 5; { Finaliza quando Resultado < 5 }
 
-    if Contador = 6 then
-        writed(Contador)
-    else if Contador <> 6 then
-        writed(Resultado);
+    if Contador = 6 then { Verifica se Contador é igual a 6 }
+        writed(Contador) { Exibe Contador }
+    else if Contador <> 6 then { Verifica se Contador é diferente de 6 }
+        writed(Resultado); { Exibe Resultado }
 
-    for i := 1 to 10 do
+    for i := 1 to 10 do { Loop de 1 a 10 }
     begin
-        writed(i);
+        writed(i); { Exibe o valor de i }
     end;
 
-    Calcular(3, 4);
-    Resultado := Multiplicar(2, 3);
-    writed(Resultado);
+    Calcular(3, 4); { Chama o procedimento Calcular }
+    Resultado := Multiplicar(2, 3); { Chama a função Multiplicar }
+    writed(Resultado); { Exibe o resultado da multiplicação }
 end.

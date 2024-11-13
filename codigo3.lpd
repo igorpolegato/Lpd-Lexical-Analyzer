@@ -1,0 +1,37 @@
+program Codigo3;
+
+var
+    int Numeros[5]; { Array de inteiros para cálculo }
+    float Media; { Armazena a média dos valores }
+    int Soma, i; { Soma acumulativa e contador }
+
+procedure CalcularMedia(); { Procedimento para calcular a média dos valores }
+begin
+    Media := Soma / 5; { Divide a soma pelo total de elementos }
+    writed(Media); { Exibe a média calculada }
+end;
+
+begin
+    { Programa principal inicia aqui }
+
+    Soma := 0; { Inicialização da soma }
+
+    for i := 1 to 5 do { Loop de 1 a 5 }
+    begin
+        Numeros[i] := i * 2; { Preenche o array com valores }
+        Soma := Soma + Numeros[i]; { Acumula a soma dos valores }
+        writed(Numeros[i]); { Exibe cada valor do array }
+    end;
+
+    CalcularMedia(); { Chama o procedimento para calcular a média }
+
+    if Media >= 6.0 then { Verifica se a média é maior ou igual a 6.0 }
+        writed(Media) { Exibe a média }
+    else
+        writed(0); { Exibe 0 caso contrário }
+
+    repeat { Loop de repetição até que a soma seja 0 }
+        Soma := Soma - 1; { Decrementa a soma }
+        writed(Soma); { Exibe o valor atual da soma }
+    until Soma = 0; { Finaliza quando Soma for 0 }
+end.
