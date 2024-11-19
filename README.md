@@ -25,12 +25,20 @@ O analisador identifica os seguintes elementos no código-fonte:
 
 ### 2. **Exportação dos Resultados**
 Após a análise, os resultados podem ser exportados em:
-- **CSV**: Contendo o código-fonte completo e uma tabela com tokens e tipos.
+- **CSV**: Contendo o código-fonte completo e uma tabela com tokens, tipos e linhas.
 - **TXT**: Com formato tabular e detalhamento do código analisado.
 
 ### 3. **Ignorar Comentários**
 O analisador remove automaticamente qualquer comentário delimitado por `{}` antes da análise.
 
+---
+
+## 🛡️ Licença
+
+Este projeto está licenciado sob a **MIT License**. Consulte o arquivo [LICENSE](./LICENSE) para mais detalhes.
+
+---
+
 ## 🤝🏼 Contribuidores
-- **Pedro Furtado** ([Seu GitHub](https://github.com/PedroFurtadoC))
+- **Pedro Furtado** ([GitHub](https://github.com/PedroFurtadoC))
 - **Igor Polegato** ([GitHub](https://github.com/igorpolegato))
