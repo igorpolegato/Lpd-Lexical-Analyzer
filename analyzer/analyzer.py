@@ -204,7 +204,7 @@ class LexicalAnalyzer:
         """
         return re.sub(r'\{.*?\}', '', text, flags=re.DOTALL)
 
-    def tokenize(self, text: str) -> list[tuple[Union[str, int], Token]]:
+    def tokenize(self, text: str) -> list[tuple[Union[str, int], Token, int]]:
         """
         Realiza a análise léxica, identificando tokens no código.
 
@@ -212,28 +212,30 @@ class LexicalAnalyzer:
             text (str): O código fonte a ser analisado.
 
         Returns:
-            list[tuple[str, Token]]: Lista de tokens encontrados.
+            list[tuple[str, Token, int]]: Lista de tokens encontrados com a linha correspondente.
         """
         tokens = []
         text = self.remove_comments(text)
-        word_patterns = [
-            r"\w+",
-            r":=",
-            r"<>|[<>]={0,1}",
-            r"!=",
-            r"==",
-            r"\'.{0,1}\'|\".*\"",
-            r"/",
-            r"[^\s\w]"
-        ]
-        words = re.findall(r"|".join(word_patterns), text)
+        lines = text.splitlines()
 
-        for word in words:
-            for token in self.tokens:
+        for line_number, line in enumerate(lines, start=1):
+            word_patterns = [
+                r"\w+",
+                r":=",
+                r"<>|[<>]={0,1}",
+                r"!=",
+                r"==",
+                r"\'.{0,1}\'|\".*\"",
+                r"/",
+                r"[^\s\w]"
+            ]
+            words = re.findall(r"|".join(word_patterns), line)
 
-                if token.is_(word):
-                    tokens.append((word, token))
-                    break
+            for word in words:
+                for token in self.tokens:
+                    if token.is_(word):
+                        tokens.append((word, token, line_number))
+                        break
         return tokens
 
 class SymbolTable:

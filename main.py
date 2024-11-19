@@ -2,11 +2,11 @@
 Módulo Principal de Análise Léxica
 
 Este módulo executa a análise léxica de um arquivo fornecido pelo usuário. Ele utiliza o `LexicalAnalyzer` 
-para identificar tokens e seus tipos no código fonte, exibindo os resultados de forma organizada no terminal.
+para identificar tokens, seus tipos e linhas no código fonte, exibindo os resultados de forma organizada no terminal.
 
 Principais funcionalidades:
 - Receber e processar um arquivo de código-fonte LPD.
-- Realizar a tokenização do código e identificar seus componentes léxicos.
+- Realizar a tokenização do código e identificar seus componentes léxicos, incluindo a linha.
 - Exibir o código analisado e os tokens encontrados em formato de tabela no terminal.
 - Exportar os resultados da análise em arquivos CSV ou TXT, de acordo com a escolha do usuário.
 
@@ -38,7 +38,7 @@ def main():
     Etapas:
         1. Solicita o arquivo de entrada.
         2. Verifica a existência e a legibilidade do arquivo.
-        3. Processa o código fonte para identificar tokens e seus tipos.
+        3. Processa o código fonte para identificar tokens, tipos e linhas.
         4. Exibe os resultados em formato tabular no terminal.
         5. Oferece a opção de exportar os resultados em formato CSV ou TXT.
     """
@@ -74,10 +74,10 @@ def main():
     print("\nAnálise do Código Completo:")
     print(tabulate(code_table, headers=["Código LPD"], tablefmt="fancy_grid", stralign="left"))
 
-    # Exibe a tabela com os tokens e seus tipos
-    token_table = [(lexeme, token.type.name) for lexeme, token in tokens]
-    print("\nTokens e Tipos:")
-    print(tabulate(token_table, headers=["Tokens", "Tipos"], tablefmt="fancy_grid", stralign="center", colalign=("center", "center")))
+    # Exibe a tabela com os tokens, tipos e linhas
+    token_table = [(lexeme, token.type.name, line) for lexeme, token, line in tokens]
+    print("\nTokens, Tipos e Linhas:")
+    print(tabulate(token_table, headers=["Tokens", "Tipos", "Linha"], tablefmt="fancy_grid", stralign="center", colalign=("center", "center", "center")))
 
     # Oferece a opção de exportar os resultados
     export_choice = input("\nDeseja exportar o resultado da análise léxica? (s/n): ").strip().lower()
@@ -96,14 +96,14 @@ def main():
                 with open(output_path, "w", newline='', encoding="utf-8") as csvfile:
                     csvwriter = csv.writer(csvfile)
                     # Cabeçalhos
-                    csvwriter.writerow(["Código Completo", "Token", "Tipo"])
+                    csvwriter.writerow(["Código Completo", "Token", "Tipo", "Linha"])
                     
                     # Primeira linha com o código completo
-                    csvwriter.writerow([code, "", ""])
+                    csvwriter.writerow([code, "", "", ""])
 
-                    # Tokens e seus tipos
-                    for lexeme, token in tokens:
-                        csvwriter.writerow(["", lexeme, token.type.name])
+                    # Tokens, tipos e linhas
+                    for lexeme, token, line in tokens:
+                        csvwriter.writerow(["", lexeme, token.type.name, line])
 
                 print(f"\nA análise foi exportada com sucesso para '{os.path.abspath(output_path)}'.")
 
@@ -118,9 +118,9 @@ def main():
                     txtfile.write("\n\n")
                     txtfile.write("=" * 40 + "\n\n")
 
-                    # Tokens e seus tipos
-                    txtfile.write("=== Tokens e Tipos ===\n")
-                    txtfile.write(tabulate(token_table, headers=["Tokens", "Tipos"], tablefmt="fancy_grid", stralign="center", colalign=("center", "center")))
+                    # Tokens, tipos e linhas
+                    txtfile.write("=== Tokens, Tipos e Linhas ===\n")
+                    txtfile.write(tabulate(token_table, headers=["Tokens", "Tipos", "Linha"], tablefmt="fancy_grid", stralign="center", colalign=("center", "center", "center")))
                     txtfile.write("\n")
 
                 print(f"\nA análise foi exportada com sucesso para '{os.path.abspath(output_path)}'.")
