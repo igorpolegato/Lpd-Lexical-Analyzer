@@ -8,7 +8,7 @@ O analisador léxico é um componente fundamental na construção de um **compil
 
 ## 📜 Objetivo
 
-O objetivo principal deste projeto é criar um analisador léxico funcional e extensível para a linguagem LPD, que possa ser integrado em um compilador completo. 
+O objetivo principal deste projeto é criar um analisador léxico funcional e extensível para a linguagem LPD, que possa ser integrado em um compilador completo.
 
 ---
 
@@ -40,5 +40,5 @@ Este projeto está licenciado sob a **MIT License**. Consulte o arquivo [LICENSE
 ---
 
 ## 🤝🏼 Contribuidores
-- **Pedro Furtado** ([GitHub](https://github.com/PedroFurtadoC))
 - **Igor Polegato** ([GitHub](https://github.com/igorpolegato))
+- **Pedro Furtado** ([GitHub](https://github.com/PedroFurtadoC))
